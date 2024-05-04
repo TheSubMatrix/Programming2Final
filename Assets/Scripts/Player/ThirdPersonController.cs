@@ -4,16 +4,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-[RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(CharacterController), typeof(Health))]
 public class ThirdPersonController : MonoBehaviour
 {
     CharacterController _controller;
+    Health _healthComponent;
     [SerializeField] Animator _animator;
     [SerializeField] float speed = 6f;
     [SerializeField] float turnSmoothTime = 0.1f;
     [SerializeField] float jumpHeight = 3f;
     [SerializeField] Camera cam;
 
+    
     Vector3 _moveDirection = Vector3.zero;
     Vector3 _verticalVelocity = new Vector3(0, -2, 0);
     float turningVelocity;
@@ -22,11 +24,12 @@ public class ThirdPersonController : MonoBehaviour
     private void Awake()
     {
         _controller = GetComponent<CharacterController>();
+        _healthComponent = GetComponent<Health>();
     }
     private void Start()
     {
-        //Cursor.lockState = CursorLockMode.Locked;
-        //Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
     private void Update()
     {
@@ -42,7 +45,7 @@ public class ThirdPersonController : MonoBehaviour
 
 
 
-        if (desiredMovementDirection.magnitude >= 0.1)
+        if (desiredMovementDirection.magnitude >= 0.1 && _healthComponent.IsAlive)
         {
             float desiredAngle = Mathf.Atan2(desiredMovementDirection.x, desiredMovementDirection.z) * Mathf.Rad2Deg + cam.transform.eulerAngles.y;
             float calculatedAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, desiredAngle, ref turningVelocity, turnSmoothTime);
@@ -62,7 +65,7 @@ public class ThirdPersonController : MonoBehaviour
             _animator.SetFloat("Velocity Magnitude", 0);
         }
         _controller.Move(_verticalVelocity * Time.deltaTime);
-        if (Input.GetButtonDown("Jump") && _controller.isGrounded)
+        if (Input.GetButtonDown("Jump") && _controller.isGrounded && _healthComponent.IsAlive)
         {
             _animator.SetBool("Is Jumping", true);
             _verticalVelocity.y = Mathf.Sqrt(jumpHeight * -2 * _gravity);
@@ -84,11 +87,17 @@ public class ThirdPersonController : MonoBehaviour
         {
             _animator.SetBool("Is Falling", false);
         }
-
         _animator.SetBool("Is Grounded", _controller.isGrounded);
     }
     void Throw()
     {
-        _animator.SetTrigger("Throw");
+        if (_healthComponent.IsAlive)
+        {
+            _animator.SetTrigger("Throw");
+        }
+    }
+    public void OnDeath()
+    {
+        _animator.SetTrigger("Death");
     }
 }

@@ -31,7 +31,10 @@ public class AI_Chase : BC_AIState
 
     public override void OnTargetSeen(AI stateHandler, GameObject objectSeen)
     {
-        stateHandler.StopCoroutine(m_stopChaseRoutine);
+        if(m_stopChaseRoutine != null)
+        {
+            stateHandler.StopCoroutine(m_stopChaseRoutine);
+        }
     }
 
     public override void UpdateState(AI stateHandler)

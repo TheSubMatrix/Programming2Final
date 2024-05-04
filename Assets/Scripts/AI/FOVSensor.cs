@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
+using Unity.Collections;
 
 [RequireComponent(typeof(MeshFilter))]
 public class FOVSensor : MonoBehaviour
@@ -20,6 +21,7 @@ public class FOVSensor : MonoBehaviour
     [SerializeField]bool m_filterByTags = false;
     [SerializeField]List<string> m_tagsToLookFor = new List<string>();
     [SerializeField] LayerMask m_fovCollisionMask;
+
     Vector3[] preCollisionVertexPositions;
 
     private void FixedUpdate()
@@ -188,7 +190,7 @@ public class FOVSensor : MonoBehaviour
             {
                 if (m_filterByTags)
                 {
-                    if (m_tagsToLookFor.Contains(gameObject.tag))
+                    if (m_tagsToLookFor.Contains(gameObject.tag) && gameObject != null)
                     {
                         FoundNewObject.Invoke(gameObject);
                     }
